@@ -1834,20 +1834,23 @@ Version: 2017-01-17 2021-08-12"
 (defun xah-insert-paren () (interactive) (xah-insert-bracket-pair "(" ")") )
 (defun xah-insert-square-bracket () (interactive) (xah-insert-bracket-pair "[" "]") )
 (defun xah-insert-brace () (interactive) (xah-insert-bracket-pair "{" "}") )
+(defun xah-insert-angle-bracket () (interactive) (xah-insert-bracket-pair "<" ">") )
 
 (defun xah-insert-markdown-quote () (interactive) (xah-insert-bracket-pair "`" "`") )
 (defun xah-insert-markdown-triple-quote () (interactive) (xah-insert-bracket-pair "```\n" "\n```"))
 
-(defun xah-insert-double-curly-quote () (interactive) (xah-insert-bracket-pair "“" "”") )
-(defun xah-insert-curly-single-quote () (interactive) (xah-insert-bracket-pair "‘" "’") )
-(defun xah-insert-single-angle-quote () (interactive) (xah-insert-bracket-pair "‹" "›") )
-(defun xah-insert-double-angle-quote () (interactive) (xah-insert-bracket-pair "«" "»") )
+(defun xah-org-code () (interactive) (xah-insert-bracket-pair "~" "~") )
+(defun xah-org-strikethrough () (interactive) (xah-insert-bracket-pair "‘" "’") )
+
+(defun xah-org-italics () (interactive) (xah-insert-bracket-pair "/" "/") )
+(defun xah-insert-org-bold () (interactive) (xah-insert-bracket-pair "*" "*") )
+
 (defun xah-insert-ascii-double-quote () (interactive) (xah-insert-bracket-pair "\"" "\"") )
 (defun xah-insert-ascii-single-quote () (interactive) (xah-insert-bracket-pair "'" "'") )
 (defun xah-insert-emacs-quote () (interactive) (xah-insert-bracket-pair "`" "'") )
 (defun xah-insert-corner-bracket () (interactive) (xah-insert-bracket-pair "「" "」" ) )
 (defun xah-insert-white-corner-bracket () (interactive) (xah-insert-bracket-pair "『" "』") )
-(defun xah-insert-angle-bracket () (interactive) (xah-insert-bracket-pair "〈" "〉") )
+
 (defun xah-insert-double-angle-bracket () (interactive) (xah-insert-bracket-pair "《" "》") )
 (defun xah-insert-white-lenticular-bracket () (interactive) (xah-insert-bracket-pair "〖" "〗") )
 (defun xah-insert-black-lenticular-bracket () (interactive) (xah-insert-bracket-pair "【" "】") )
@@ -1918,58 +1921,29 @@ Version: 2013-06-12 2019-03-07"
         (beginning-of-line)
         (forward-char $colpos)))))
 
-(defvar xah-unicode-list
-  '(
-    ;;
-    ("smile beaming 😊")
-    ("tears of joy 😂")
-    ("hug 🤗")
-    ("heart eyes 😍")
-    ("heart face 🥰")
-
-    ("angry 😠")
-    ("vomit 🤮")
-
-    ("thumb up 👍")
-    ("thumb down 👎")
-
-    ("checkmark ✅")
-    ("new 🆕")
-    ("star glowing 🌟")
-    ("star ⭐")
-    ("sparkles ✨")
-    ("rocket 🚀")
-
-    ("sun 🌞")
-    ("red heart ❤")
-
-    ("clown 🤡")
-
-    ("large circle ⭕")
-    ("cross ❌")
-
-    ("red triangle 🔺")
-    ("diamond 💠")
-    ("square ⬛")
-    ("cursor ▮")
-
-    ("bullet •")
-    ("diamond ◆")
-    ("...ellipsis …")
-    ("nbsp  ")
-    ("chinese comma 、")
-    ("-emdash —")
-    ("fullwidth ampersand ＆")
-    ("left arrow ←")
-    ("right arrow →")
-    ("up arrow ↑")
-    ("down arrow ↓")
-    ;;
-    )
-
-  "A list of strings used by `xah-insert-unicode'.
-Each item is a string.
-The first part of string before last space, is used as name of a unicode char, the last part before last space, is the unicode Unicode character to insert. (can be more than 1 char).")
+(defvar xah-unicode-list nil "Associative list of Unicode symbols. First element is a Unicode character, second element is a string used as key shortcut in `completing-read'")
+(setq xah-unicode-list
+      '(
+        ;; format: (str . nameOrFastKey)
+        ("_" . "underscore" )
+        ("•" . ".bullet" )
+        ("→" . "tn")
+        ("◇" . "3" )
+        ("◆" . "4" )
+        ("¤" . "2" )
+        ("…" . "...ellipsis" )
+        (" " . "nbsp" )
+        ("、" . "," )
+        ("⭑" . "9" )
+        ("🎶" . "5" )
+        ("—" . "-emdash" )
+        ("＆" . "7fullwidthAmpersand" )
+        ("↓" . "downArrow")
+        ("←" . "leftArrow")
+        ("↑" . "upArrow")
+        ("👍" . "thumbUp")
+        ("〚〛" . "whiteSquareBracket")
+        ) )
 
 (defun xah-insert-unicode ()
   "Insert a unicode from a custom list `xah-unicode-list'.
@@ -1978,8 +1952,10 @@ Version: 2021-01-05 2022-04-07 2022-10-30"
   (interactive)
   (let (($str
          (completing-read
-          "Insert:" xah-unicode-list)))
-    (insert (car (last (split-string $str " " t))))))
+          "Insert:" (mapcar
+                     (lambda (x)
+                       (format "%s %s" (car x) (cdr x))) xah-unicode-list))))
+    (insert (car (split-string $str " " t)))))
 
 
 ;; text selection
@@ -3088,7 +3064,7 @@ Version 2022-10-31"
     (xah-fly--define-keys
      (define-prefix-command 'xah-fly-leader-key-map)
      '(("SPC" . xah-fly-insert-mode-activate)
-       ("RET" . execute-extended-command)
+       ("RET" . smex-major-mode-commands)
 
        ;; This keymap I've not used. things are here experimentally.
        ;; The TAB key is not in a very good ergonomic position on average keyboards, so 【leader tab ‹somekey›】 probably should not be used much.
@@ -3173,8 +3149,8 @@ Version 2022-10-31"
        ("e a" . xah-insert-double-angle-bracket)
        ("e b" . xah-insert-black-lenticular-bracket)
        ("e c" . xah-insert-ascii-single-quote)
-       ("e d" . xah-insert-double-curly-quote)
-       ("e e" . xah-insert-unicode)
+       ("e d" . xah-org-code)
+       ("e e" . xah-insert-org-bold)
        ("e f" . xah-insert-emacs-quote)
        ("e g" . xah-insert-ascii-double-quote)
        ("e h" . xah-insert-brace)
@@ -3186,11 +3162,11 @@ Version 2022-10-31"
        ("e n" . xah-insert-square-bracket)
        ("e p" . xah-insert-single-angle-quote)
        ("e r" . xah-insert-tortoise-shell-bracket)
-       ("e s" . xah-insert-string-assignment)
+       ("e s" . xah-insert-angle-bracket)
        ("e t" . xah-insert-paren)
        ("e u" . xah-insert-date)
        ("e v" . xah-insert-markdown-triple-quote)
-       ("e w" . xah-insert-angle-bracket)
+       ("e w" . xah-insert-string-assignment)
        ("e y" . xah-insert-double-angle-quote)
 
        ("f" . xah-search-current-word)
@@ -3389,7 +3365,7 @@ Version 2022-10-31"
        ("9" . xah-select-text-in-quote)
        ("0" . xah-pop-local-mark-ring)
 
-       ("a" . execute-extended-command)
+       ("a" . smex)
        ("b" . isearch-forward)
        ("c" . previous-line)
        ("d" . xah-beginning-of-line-or-block)
@@ -3435,57 +3411,64 @@ Version 2022-10-31"
   (global-set-key (kbd "<help>") nil)
   (global-set-key (kbd "<f1>") nil))
 
+(xah-fly--define-keys
+ xah-fly-shared-map
+ '(("<home>" . xah-fly-command-mode-activate)
+   ("<menu>" . xah-fly-command-mode-activate)
+   ("<f12>" . xah-fly-command-mode-activate))
+ :direct)
+
 (when xah-fly-use-meta-key
   (global-set-key (kbd "M-SPC") #'xah-fly-command-mode-activate)
-  (global-set-key (kbd "M-\\") 'nil) ; delete-horizontal-space
-  (global-set-key (kbd "M-!") 'nil)  ; shell-command
-  (global-set-key (kbd "M-$") 'nil)  ; ispell-word
-  (global-set-key (kbd "M-%") 'nil)  ; query-replace
-  (global-set-key (kbd "M-&") 'nil)  ; async-shell-command
-  (global-set-key (kbd "M-'") 'nil)  ; abbrev-prefix-mark
-  (global-set-key (kbd "M-(") 'nil)  ; insert-parentheses
+  ;; (global-set-key (kbd "M-\\") 'nil) ; delete-horizontal-space
+  ;; (global-set-key (kbd "M-!") 'nil)  ; shell-command
+  ;; (global-set-key (kbd "M-$") 'nil)  ; ispell-word
+  ;; (global-set-key (kbd "M-%") 'nil)  ; query-replace
+  ;; (global-set-key (kbd "M-&") 'nil)  ; async-shell-command
+  ;; (global-set-key (kbd "M-'") 'nil)  ; abbrev-prefix-mark
+  ;; (global-set-key (kbd "M-(") 'nil)  ; insert-parentheses
   (global-set-key (kbd "M-)") 'nil)  ; move-past-close-and-reindent
   ;; (global-set-key (kbd "M-,") 'nil) ; xref-pop-marker-stack
   ;; (global-set-key (kbd "M-.") 'nil) ; xref-find-definitions
-  (global-set-key (kbd "M-/") 'nil) ; dabbrev-expand
-  (global-set-key (kbd "M-:") 'nil) ; eval-expression
+  ;; (global-set-key (kbd "M-/") 'nil) ; dabbrev-expand
+  ;; (global-set-key (kbd "M-:") 'nil) ; eval-expression
   ;; (global-set-key (kbd "M-;") 'nil) ; comment-dwim
-  (global-set-key (kbd "M-<") 'nil) ; beginning-of-buffer
-  (global-set-key (kbd "M-=") 'nil) ; count-words-region
-  (global-set-key (kbd "M->") 'nil) ; end-of-buffer
+  ;; (global-set-key (kbd "M-<") 'nil) ; beginning-of-buffer
+  ;; (global-set-key (kbd "M-=") 'nil) ; count-words-region
+  ;; (global-set-key (kbd "M->") 'nil) ; end-of-buffer
   ;; (global-set-key (kbd "M-?") 'nil) ; xref-find-references
   (global-set-key (kbd "M-@") 'nil) ; mark-word
   (global-set-key (kbd "M-^") 'nil) ; delete-indentation
   (global-set-key (kbd "M-`") 'nil) ; tmm-menubar
-  (global-set-key (kbd "M-a") 'nil) ; backward-sentence
-  (global-set-key (kbd "M-b") 'nil) ; backward-word
-  (global-set-key (kbd "M-c") 'nil) ; capitalize-word
-  (global-set-key (kbd "M-d") 'nil) ;  kill-word
-  (global-set-key (kbd "M-e") 'nil) ; forward-sentence
-  (global-set-key (kbd "M-f") 'nil) ; forward-word
+  ;; (global-set-key (kbd "M-a") 'nil) ; backward-sentence
+  ;; (global-set-key (kbd "M-b") 'nil) ; backward-word
+  ;; (global-set-key (kbd "M-c") 'nil) ; capitalize-word
+  ;; (global-set-key (kbd "M-d") 'nil) ;  kill-word
+  ;; (global-set-key (kbd "M-e") 'nil) ; forward-sentence
+  ;; (global-set-key (kbd "M-f") 'nil) ; forward-word
   (global-set-key (kbd "M-g") 'nil) ; Prefix Command
   (global-set-key (kbd "M-h") 'nil) ; mark-paragraph
   (global-set-key (kbd "M-i") 'nil) ; tab-to-tab-stop
-  (global-set-key (kbd "M-j") 'nil) ; default-indent-new-line
-  (global-set-key (kbd "M-k") 'nil) ; kill-sentence
+  ;; (global-set-key (kbd "M-j") 'nil) ; default-indent-new-line
+  ;; (global-set-key (kbd "M-k") 'nil) ; kill-sentence
   (global-set-key (kbd "M-l") 'nil) ; downcase-word
   (global-set-key (kbd "M-m") 'nil) ; back-to-indentation
   (global-set-key (kbd "M-o") 'nil) ; facemenu-keymap
-  (global-set-key (kbd "M-q") 'nil) ; fill-paragraph
+  ;; (global-set-key (kbd "M-q") 'nil) ; fill-paragraph
   (global-set-key (kbd "M-r") 'nil) ; move-to-window-line-top-bottom
   (global-set-key (kbd "M-s") 'nil) ; Prefix Command
-  (global-set-key (kbd "M-t") 'nil) ; transpose-words
+  ;; (global-set-key (kbd "M-t") 'nil) ; transpose-words
   (global-set-key (kbd "M-u") 'nil) ; upcase-word
-  (global-set-key (kbd "M-v") 'nil) ; scroll-down-command
-  (global-set-key (kbd "M-w") 'nil) ; kill-ring-save
+  ;; (global-set-key (kbd "M-v") 'nil) ; scroll-down-command
+  ;; (global-set-key (kbd "M-w") 'nil) ; kill-ring-save
   ;; (global-set-key (kbd "M-x") 'nil) ; execute-extended-command
   ;; (global-set-key (kbd "M-y") 'nil) ; yank-pop
-  (global-set-key (kbd "M-z") 'nil)   ; zap-to-char
-  (global-set-key (kbd "M-{") 'nil)   ; backward-paragraph
-  (global-set-key (kbd "M-|") 'nil)   ; shell-command-on-region
-  (global-set-key (kbd "M-}") 'nil)   ; forward-paragraph
+  ;; (global-set-key (kbd "M-z") 'nil)   ; zap-to-char
+  ;; (global-set-key (kbd "M-{") 'nil)   ; backward-paragraph
+  ;; (global-set-key (kbd "M-|") 'nil)   ; shell-command-on-region
+  ;; (global-set-key (kbd "M-}") 'nil)   ; forward-paragraph
   (global-set-key (kbd "M-~") 'nil)   ; not-modified
-  (global-set-key (kbd "M-DEL") 'nil) ; backward-kill-word
+  ;; (global-set-key (kbd "M-DEL") 'nil) ; backward-kill-word
   )
 
 (when xah-fly-use-control-key
@@ -3570,6 +3553,21 @@ Version 2022-10-31"
   (global-set-key (kbd "C-z") #'undo)
   ;;
   )
+
+(when xah-fly-use-isearch-arrows
+  (xah-fly--define-keys
+   isearch-mode-map
+   '(("<up>" . isearch-ring-retreat)
+     ("<down>" . isearch-ring-advance)
+     ("<left>" . isearch-repeat-backward)
+     ("<right>" . isearch-repeat-forward)
+     ( "C-v" . isearch-yank-kill))
+   :direct)
+  (xah-fly--define-keys
+   minibuffer-local-isearch-map
+   '(("<left>" . isearch-reverse-exit-minibuffer)
+     ("<right>" . isearch-forward-exit-minibuffer))
+   :direct))
 
 
 
@@ -3803,6 +3801,19 @@ Version: 2017-07-07"
   (insert " ")
   (xah-fly-insert-mode-activate)
   (left-char))
+
+(defun xah-show-formfeed-as-line ()
+  "Display the formfeed ^L char as line.
+URL `http://xahlee.info/emacs/emacs/emacs_form_feed_section_paging.html'
+Version 2018-08-30"
+  (interactive)
+  ;; 2016-10-11 thanks to Steve Purcell's page-break-lines.el
+  (progn
+    (when (not buffer-display-table)
+      (setq buffer-display-table (make-display-table)))
+    (aset buffer-display-table ?\^L
+          (vconcat (make-list 70 (make-glyph-code ?─ 'font-lock-comment-face))))
+    (redraw-frame)))
 
 
 
