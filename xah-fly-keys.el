@@ -3415,7 +3415,8 @@ Version 2022-10-31"
  xah-fly-shared-map
  '(("<home>" . xah-fly-command-mode-activate)
    ("<menu>" . xah-fly-command-mode-activate)
-   ("<f12>" . xah-fly-command-mode-activate))
+   ;; ("<f12>" . xah-fly-command-mode-activate)
+)
  :direct)
 
 (when xah-fly-use-meta-key
