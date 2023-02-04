@@ -1890,9 +1890,7 @@ Version: 2017-01-17 2021-08-12"
 (defun dgg-xah-insert-curly-braces ()
   "insert { }  with newline indents"
   (interactive)
-  (insert "{")
-  (insert " ")
-  (insert "}")
+  (insert "{ }")
   (backward-char)
   (newline-and-indent)
   (newline-and-indent)
