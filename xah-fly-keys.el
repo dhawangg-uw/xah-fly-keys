@@ -1833,7 +1833,6 @@ Version: 2017-01-17 2021-08-12"
 
 (defun xah-insert-paren () (interactive) (xah-insert-bracket-pair "(" ")") )
 (defun xah-insert-square-bracket () (interactive) (xah-insert-bracket-pair "[" "]") )
-(defun xah-insert-brace () (interactive) (xah-insert-bracket-pair "{" "}") )
 (defun xah-insert-angle-bracket () (interactive) (xah-insert-bracket-pair "<" ">") )
 
 (defun xah-insert-markdown-quote () (interactive) (xah-insert-bracket-pair "`" "`") )
@@ -1887,6 +1886,21 @@ Version: 2017-01-17 2021-08-12"
   "Insert a form feed char (codepoint 12)"
   (interactive)
   (insert "\n\u000c\n"))
+
+(defun dgg-xah-insert-curly-braces ()
+  "insert { }  with newline indents"
+  (interactive)
+  (insert "{")
+  (insert " ")
+  (insert "}")
+  (backward-char)
+  (newline-and-indent)
+  (newline-and-indent)
+  (previous-line)
+  (insert " ")
+  (c-indent-line-or-region))
+
+(defun xah-insert-brace () (interactive) (dgg-xah-insert-curly-braces) )
 
 (defun xah-show-formfeed-as-line ()
   "Display the formfeed ^L char as line.
